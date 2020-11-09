@@ -40,7 +40,7 @@ class Post(db.Model):
     title = db.Column(db.String(150))
     author = db.Column(db.String(75))
     body = db.Column(db.String(800))
-    image_path = db.Column(db.String(100))
+    image_path = db.Column(db.String(300))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
@@ -58,10 +58,13 @@ class Post(db.Model):
             fileextension = filename.rsplit('.',1)[1];
             Randomfilename = id_generator();
             filename = Randomfilename + '.' + fileextension;
+            print(file.filename)
             try:
-                blob_service.create_blob_from_stream(blob_container, filename, file)
-                if(self.image_path):
-                    blob_service.delete_blob(blob_container, self.image_path)
+                #blob_service.create_blob_from_stream(blob_container, filename, file)
+                blob_client = blob_service.get_blob_client(container=blob_container, blob=filename)
+                blob_client.upload_blob(file)
+                #if(self.image_path):
+                    #blob_service.delete_blob(blob_container, self.image_path)
             except Exception:
                 flash(Exception)
             self.image_path =  filename
